@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AdminDashboardView,TrainerDashboardView,  MemberDashboardView
+from .views import AdminDashboardView,TrainerDashboardView,MemberDashboardView
 
 urlpatterns = [
     path("admin/",AdminDashboardView.as_view()
