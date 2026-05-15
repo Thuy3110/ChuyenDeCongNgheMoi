@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: yoga_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: thanhthuy
+      MYSQL_DATABASE: yoga_db
+    ports:
+      - "3308:3306"
+    volumes:
+      - yoga_mysql_data:/var/lib/mysql
+    networks:
+      - yoga_network
+
+  backend:
+    build: ./backend
+    container_name: yoga_backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - yoga_network
+
+  frontend:
+    build: ./frontend
+    container_name: yoga_frontend
+    restart: always
+    ports:
+      - "8088:80"
+    depends_on:
+      - backend
+    networks:
+      - yoga_network
+
+volumes:
+  yoga_mysql_data:
+
+networks:
+  yoga_network:
