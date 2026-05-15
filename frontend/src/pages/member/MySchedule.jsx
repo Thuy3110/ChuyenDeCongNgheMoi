@@ -5,35 +5,39 @@ function Schedule() {
   const [groupedSchedules, setGroupedSchedules] = useState({});
 
   useEffect(() => {
+    let isMounted = true; // tránh setState khi component unmount
+
+    const fetchSchedules = async () => {
+      try {
+        const res = await api.get("schedules/");
+        console.log("MY SCHEDULE:", res.data);
+
+        const data = Array.isArray(res.data)
+          ? res.data
+          : res.data.results || [];
+
+        // ✅ GROUP THEO CLASS
+        const grouped = data.reduce((acc, item) => {
+          const className = item.class_name;
+
+          if (!acc[className]) {
+            acc[className] = [];
+          }
+
+          acc[className].push(item);
+          return acc;
+        }, {});
+
+        if (isMounted) setGroupedSchedules(grouped);
+      } catch (error) {
+        console.error("Lỗi tải lịch học:", error);
+      }
+    };
+
     fetchSchedules();
+
+    return () => { isMounted = false; };
   }, []);
-
-  const fetchSchedules = async () => {
-    try {
-      const res = await api.get("schedules/");
-      console.log("MY SCHEDULE:", res.data);
-
-      const data = Array.isArray(res.data)
-        ? res.data
-        : res.data.results || [];
-
-      // ✅ GROUP THEO CLASS
-      const grouped = data.reduce((acc, item) => {
-        const className = item.class_name;
-
-        if (!acc[className]) {
-          acc[className] = [];
-        }
-
-        acc[className].push(item);
-        return acc;
-      }, {});
-
-      setGroupedSchedules(grouped);
-    } catch (error) {
-      console.error("Lỗi tải lịch học:", error);
-    }
-  };
 
   return (
     <div>

@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import NotificationBell from "./NotificationBell";
-import api from "../api/axios";
+// import api from "../api/axios";
 import { useGlobalSearch } from "../GlobalSearchContext";
 
 function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
-
+  
   const [dark, setDark] = useState(
     localStorage.getItem("theme") === "dark"
   );
@@ -65,7 +64,7 @@ function Navbar() {
       setResults([]);
       return;
     }
-
+  
   };
 
   const handleSearchKey = (e) => {
@@ -73,6 +72,7 @@ function Navbar() {
       navigate("/search");
     }
   };
+
 
   return (
     <nav className="sticky top-0 z-50 bg-white/70 dark:bg-gray-900/70 backdrop-blur border-b dark:border-gray-800">

@@ -34,7 +34,6 @@ class Schedule(models.Model):
         related_name="trainer_schedules"
     )
     def clean(self):
-        from apps.classes.models import Class
 
         # lấy class hiện tại
         yoga_class = self.yoga_class
@@ -52,8 +51,7 @@ class Schedule(models.Model):
         for s in conflict_schedules:
             # check overlap time
             if (
-                self.start_time < s.end_time and
-                self.end_time > s.start_time
+                self.start_time < s.end_time and self.end_time > s.start_time
             ):
                 raise ValidationError(
                     "Phòng đã bị trùng lịch trong khung giờ này!"

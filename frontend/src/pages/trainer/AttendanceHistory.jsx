@@ -5,17 +5,24 @@ function AttendanceHistory() {
   const [records, setRecords] = useState([]);
 
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    let isMounted = true;
 
-  const fetchHistory = async () => {
-    try {
-      const res = await api.get("attendance/history/");
-      setRecords(res.data);
-    } catch (error) {
-      console.error("Lỗi load lịch sử:", error);
-    }
-  };
+    const fetchHistory = async () => {
+      try {
+        const res = await api.get("attendance/history/");
+        if (!isMounted) return;
+        setRecords(res.data);
+      } catch (error) {
+        console.error("Lỗi load lịch sử:", error);
+      }
+    };
+
+    fetchHistory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div>

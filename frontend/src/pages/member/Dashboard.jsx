@@ -17,7 +17,7 @@ function Dashboard() {
     records: [],
   });
 
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
     fetchOverview();

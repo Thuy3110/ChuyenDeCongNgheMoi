@@ -5,10 +5,6 @@ function TrainerStudents() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
   const fetchStudents = async () => {
     try {
       const res = await api.get("attendance/trainer/students/");
@@ -19,6 +15,11 @@ function TrainerStudents() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => await fetchStudents();
+    fetchData();
+  }, []);
 
   return (
     <div className="p-6">

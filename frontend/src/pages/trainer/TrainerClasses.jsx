@@ -3,31 +3,26 @@ import api from "../../api/axios";
 
 function TrainerClasses() {
   const [schedules, setSchedules] = useState([]);
-
-  useEffect(() => {
-    fetchSchedules();
-  }, []);
-
+  
   const fetchSchedules = async () => {
     try {
       const res = await api.get("schedules/");
-      const data = Array.isArray(res.data)
-        ? res.data
-        : res.data.results || [];
-
+      const data = Array.isArray(res.data) ? res.data : res.data.results || [];
       setSchedules(data);
     } catch (error) {
       console.error("Lỗi tải lớp học:", error);
     }
   };
 
-  // ✅ FIX: group theo class_id (KHÔNG dùng object hoặc name)
-  const grouped = schedules.reduce((acc, item) => {
-    const key =
-      item.class_id ||
-      item.yoga_class_id ||
-      item.yoga_class?.id;
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchSchedules();
+    };
+    fetchData();
+  }, []);
 
+  const grouped = schedules.reduce((acc, item) => {
+    const key = item.class_id || item.yoga_class_id || item.yoga_class?.id;
     if (!key) return acc;
 
     if (!acc[key]) acc[key] = [];

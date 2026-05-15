@@ -23,40 +23,15 @@ function TrainerSchedule() {
     end_time: ""
   });
 
-  useEffect(() => {
-    fetchSchedules();
-    fetchClasses();
-  }, []);
-  
-  useEffect(() => {
-    fetchSchedules(keyword);
-  }, [keyword]);
-
-  useEffect(() => {
-    const handleSearch = (e) => {
-      setKeyword((e.detail || "").trim());
-    };
-
-    window.addEventListener("globalSearch", handleSearch);
-
-    return () =>
-      window.removeEventListener("globalSearch", handleSearch);
-  }, []);
-
-  // GET SCHEDULES (ĐÚNG API)
- const fetchSchedules = async (search = "") => {
+  const fetchSchedules = async (search = "") => {
     try {
-      const res = await api.get(
-        `/schedules/trainer/schedules/?search=${search}`
-      );
-
+      const res = await api.get(`/schedules/trainer/schedules/?search=${search}`);
       setSchedules(res.data);
     } catch (err) {
       console.error(err);
     }
   };
-
-  // GET CLASSES (QUAN TRỌNG)
+  
   const fetchClasses = async () => {
     try {
       const res = await api.get("classes/trainer/");
@@ -66,68 +41,66 @@ function TrainerSchedule() {
     }
   };
 
-  // CREATE
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchSchedules();
+      await fetchClasses();
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchByKeyword = async () => {
+      await fetchSchedules(keyword);
+    };
+    fetchByKeyword();
+  }, [keyword]);
+
+  useEffect(() => {
+    const handleSearch = (e) => setKeyword((e.detail || "").trim());
+    window.addEventListener("globalSearch", handleSearch);
+    return () => window.removeEventListener("globalSearch", handleSearch);
+  }, []);
+
   const handleCreate = async () => {
-  try {
-    await api.post("schedules/trainer/schedules/", form);
-
-    fetchSchedules();
-
-    setForm({
-      yoga_class: "",
-      weekday: 0,
-      start_time: "",
-      end_time: ""
-    });
-
-  } catch (err) {
-    console.error(err);
-
-    alert(err.response?.data?.detail || "Tạo lịch thất bại");
-  }
-};
-
-  // UPDATE
+    try {
+      await api.post("schedules/trainer/schedules/", form);
+      fetchSchedules();
+      setForm({ yoga_class: "", weekday: 0, start_time: "", end_time: "" });
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.detail || "Tạo lịch thất bại");
+    }
+  };
   const handleUpdate = async (id) => {
-    await api.patch( `schedules/trainer/schedules/${id}/`, form);
+    await api.patch(`schedules/trainer/schedules/${id}/`, form);
     setEditId(null);
     fetchSchedules();
   };
 
   const handleDelete = async (id) => {
-  try {
-    await api.delete(`schedules/trainer/schedules/${id}/`);
-
-    fetchSchedules();
-
-  } catch (err) {
-    console.error(err);
-
-    alert(err.response?.data?.detail || "Xóa thất bại");
-  }
-};
-
-  // EDIT
+    try {
+      await api.delete(`schedules/trainer/schedules/${id}/`);
+      fetchSchedules();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.detail || "Xóa thất bại");
+    }
+  };
   const handleEdit = (item) => {
-  setEditId(item.id);
+    setEditId(item.id);
 
-  setForm({
-    yoga_class:
-      typeof item.yoga_class === "object"
-        ? item.yoga_class.id
-        : item.yoga_class,
-
-    weekday: item.weekday,
-
-    start_time: item.start_time,
-
-    end_time: item.end_time
-  });
-};
+    setForm({
+      yoga_class: typeof item.yoga_class === "object" ? item.yoga_class.id : item.yoga_class,
+      weekday: item.weekday,
+      start_time: item.start_time,
+      end_time: item.end_time
+    });
+  };
 
   const grouped = weekdayMap.map((day, index) => ({
     day,
-    items: schedules.filter(s => s.weekday === index)
+    items: schedules.filter((s) => s.weekday === index)
   }));
 
   return (
