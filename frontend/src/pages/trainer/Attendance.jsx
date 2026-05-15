@@ -5,26 +5,23 @@ function Attendance() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await api.get("attendance/attendance/today/");
+        const data = res.data.map((s) => ({
+          ...s,
+          checked: !!s.attendance_status,
+        }));
+        setStudents(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     fetchStudents();
-  }, []);
+  }, []); // chạy 1 lần khi mount
 
-  const fetchStudents = async () => {
-
-  try {
-    const res = await api.get("attendance/attendance/today/");
-    
-    const data = res.data.map(s => ({
-      ...s,
-      checked: !!s.attendance_status,
-    }));
-
-    setStudents(data);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-  const handleCheckIn = async (enrollmentId,scheduleId, status) => {
+  const handleCheckIn = async (enrollmentId, scheduleId, status) => {
     try {
       await api.post("attendance/", {
         enrollment_id: enrollmentId,
@@ -34,23 +31,19 @@ function Attendance() {
       });
 
       // ✅ update UI + lưu trạng thái
-      setStudents(prev =>
-        prev.map(s =>
-          s.enrollment_id === enrollmentId &&
-          s.schedule_id === scheduleId
+      setStudents((prev) =>
+        prev.map((s) =>
+          s.enrollment_id === enrollmentId && s.schedule_id === scheduleId
             ? { ...s, checked: true, attendance_status: status }
             : s
         )
       );
-
+      
     } catch (error) {
-      alert(
-        error.response?.data?.error || "Lỗi khi điểm danh!"
-      );
+      alert(error.response?.data?.error || "Lỗi khi điểm danh!");
     }
   };
-
-
+  
   return (
     <div>
       <h2 className="text-3xl font-bold text-green-600 mb-6">
@@ -66,7 +59,6 @@ function Attendance() {
             <th className="p-3">Kết quả</th>
           </tr>
         </thead>
-        
 
         <tbody>
           {students.length === 0 && (
@@ -77,23 +69,24 @@ function Attendance() {
             </tr>
           )}
           {students.map((s) => (
-            
-            <tr  key={`${s.enrollment_id}-${s.schedule_id}`} className="text-center border-t hover:bg-gray-50">
-              
-              {/* TÊN */}
+            <tr
+              key={`${s.enrollment_id}-${s.schedule_id}`}
+              className="text-center border-t hover:bg-gray-50"
+            >
               <td className="p-3 font-medium">{s.student_name}</td>
-
-              {/* LỚP */}
+              
               <td className="p-3">{s.class_name}</td>
-
+              
               <td className="p-3">
                 {s.weekday} ({s.start_time} - {s.end_time})
               </td>
-              {/* BUTTON */}
+
               <td className="p-3">
                 <button
                   disabled={s.attendance_status}
-                  onClick={() => handleCheckIn(s.enrollment_id, s.schedule_id, "Present")}
+                  onClick={() =>
+                    handleCheckIn(s.enrollment_id, s.schedule_id, "Present")
+                  }
                   className={`px-3 py-1 rounded mr-2 ${
                     s.attendance_status
                       ? "bg-gray-300 cursor-not-allowed"
@@ -105,7 +98,9 @@ function Attendance() {
 
                 <button
                   disabled={s.attendance_status}
-                  onClick={() => handleCheckIn(s.enrollment_id, s.schedule_id, "Absent")}
+                  onClick={() =>
+                    handleCheckIn(s.enrollment_id, s.schedule_id, "Absent")
+                  }
                   className={`px-3 py-1 rounded ${
                     s.attendance_status
                       ? "bg-gray-300 cursor-not-allowed"
@@ -116,22 +111,15 @@ function Attendance() {
                 </button>
               </td>
 
-              {/* KẾT QUẢ */}
               <td className="p-3">
                 {s.attendance_status === "Present" && (
-                  <span className="text-green-600 font-semibold">
-                    ✅ Có mặt
-                  </span>
+                  <span className="text-green-600 font-semibold">✅ Có mặt</span>
                 )}
                 {s.attendance_status === "Absent" && (
-                  <span className="text-red-500 font-semibold">
-                    ❌ Vắng
-                  </span>
+                  <span className="text-red-500 font-semibold">❌ Vắng</span>
                 )}
                 {!s.attendance_status && (
-                  <span className="text-gray-400">
-                    Chưa điểm danh
-                  </span>
+                  <span className="text-gray-400">Chưa điểm danh</span>
                 )}
                 {s.absent_count >= 3 && (
                   <p className="text-red-500 text-sm mt-1">
@@ -141,6 +129,7 @@ function Attendance() {
               </td>
 
             </tr>
+
           ))}
         </tbody>
       </table>

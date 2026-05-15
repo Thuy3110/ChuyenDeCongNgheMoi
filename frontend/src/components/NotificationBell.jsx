@@ -7,38 +7,24 @@ function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
 
+  // useEffect fetch notifications khi mount
   useEffect(() => {
-    fetchNotifications();
+    let isMounted = true; // tránh setState khi unmount
+    const fetchData = async () => {
+      try {
+        const res = await api.get("notifications/");
+        if (isMounted) setNotifications(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await api.get("notifications/");
-      setNotifications(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const markAsRead = async () => {
-    try {
-      await api.post("notifications/read-all/");
-
-      setNotifications(prev =>
-        prev.map(n => ({
-          ...n,
-          is_read: true
-        }))
-      );
-
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const unreadCount = notifications.filter(
-    n => !n.is_read
-  ).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <div className="relative">

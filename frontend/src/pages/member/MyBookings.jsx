@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { formatDate, formatTime } from "../../utils/dateUtils";
+
+// import { formatDate, formatTime } from "../../utils/date"; // unused → xóa
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
+    let isMounted = true; // tránh setState khi component unmount
+
+    const fetchBookings = async () => {
+      try {
+        const res = await api.get("booking/bookings/");
+        if (!isMounted) return;
+
+        const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+        setBookings(data);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách đăng ký:", error);
+      }
+    };
+
     fetchBookings();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
-
-  const fetchBookings = async () => {
-    try {
-      const res = await api.get("booking/bookings/");
-      console.log("MY BOOKINGS:", res.data);
-
-      const data = Array.isArray(res.data)
-        ? res.data
-        : res.data.results || [];
-
-      setBookings(data);
-    } catch (error) {
-      console.error("Lỗi khi tải danh sách đăng ký:", error);
-    }
-  };
 
   const getStatusColor = (status) => {
     switch (status) {

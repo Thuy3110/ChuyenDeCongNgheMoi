@@ -10,17 +10,23 @@ function Dashboard() {
   });
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    let isMounted = true;
 
-  const fetchStats = async () => {
-    try {
-      const res = await api.get("dashboard/trainer/");
-      setStats(res.data);
-    } catch (error) {
-      console.error("Lỗi load dashboard:", error);
-    }
-  };
+    const fetchStats = async () => {
+      try {
+        const res = await api.get("dashboard/trainer/");
+        if (isMounted) setStats(res.data);
+      } catch (error) {
+        console.error("Lỗi load dashboard:", error);
+      }
+    };
+
+    fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // 👉 mapping lại UI
   const statList = [

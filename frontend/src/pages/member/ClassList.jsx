@@ -7,21 +7,27 @@ function ClassList() {
   const [openClasses, setOpenClasses] = useState(new Set());
 
   useEffect(() => {
-    fetchClasses();
-    fetchEnrollments();
-  }, []);
+  let isMounted = true;
 
   const fetchClasses = async () => {
-    try {
-      const res = await api.get("classes/classes/");
-      const data = Array.isArray(res.data)
-        ? res.data
-        : res.data.results || [];
-      setClasses(data);
-    } catch (error) {
-      console.error(error);
-    }
+    const res = await api.get("classes/classes/");
+    if (!isMounted) return;
+    const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+    setClasses(data);
   };
+
+  const fetchEnrollments = async () => {
+    const res = await api.get("booking/bookings/");
+    if (!isMounted) return;
+    const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+    setEnrollments(data);
+  };
+
+  fetchClasses();
+  fetchEnrollments();
+
+  return () => { isMounted = false; };
+}, []);
 
   const fetchEnrollments = async () => {
     try {

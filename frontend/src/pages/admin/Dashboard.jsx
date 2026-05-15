@@ -9,20 +9,24 @@ function AdminDashboard() {
     members: 0,
   });
 
+  
   useEffect(() => {
-    fetchDashboard();
-  }, []);
+  let isMounted = true;
 
   const fetchDashboard = async () => {
     try {
-
+      
       const res = await api.get("dashboard/admin/");
-      setStats(res.data);
-
+      if (isMounted) setStats(res.data);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
+
+  fetchDashboard();
+
+  return () => { isMounted = false; };
+}, []);
 
   const cards = [
     {

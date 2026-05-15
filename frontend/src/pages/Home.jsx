@@ -13,82 +13,40 @@ function Home() {
   const { keyword } = useGlobalSearch();
 
   const [classesData, setClassesData] = useState([]);
+  
+  const fetchClasses = async (search = "") => {
+    try {
+      const res = await api.get(`classes/classes/?search=${search}`);
+      const data = Array.isArray(res.data) ? res.data : res.data.results || [];
+      setClassesData(data.slice(0, 3));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    AOS.init({
-      duration: 900,
-      easing: "ease-in-out",
-      once: false,
-      mirror: true,
-      offset: 80,
-    });
-
-    setTimeout(() => {
-      AOS.refreshHard();
-    }, 500);
+    AOS.init({ duration: 900, easing: "ease-in-out", once: false, mirror: true, offset: 80 });
+    setTimeout(() => AOS.refreshHard(), 500);
   }, []);
 
   useEffect(() => {
-    fetchClasses(keyword);
+    const fetch = async () => await fetchClasses(keyword);
+    fetch();
   }, [keyword]);
 
-  const fetchClasses = async (search = "") => {
-  try {
-    const res = await api.get(
-      `classes/classes/?search=${search}`
-    );
-
-    const data = Array.isArray(res.data)
-      ? res.data
-      : res.data.results || [];
-
-    setClassesData(data.slice(0, 3));
-  } catch (err) {
-    console.error(err);
-  }
-};
-
   const features = [
-    {
-      icon: "🧘",
-      title: "Quản lý lớp học",
-      desc: "Đăng ký lớp Yoga nhanh chóng",
-      link: "/member/classes",
-    },
-    {
-      icon: "📅",
-      title: "Lịch học",
-      desc: "Theo dõi lịch học cá nhân",
-      link: "/member/schedule",
-    },
-    {
-      icon: "📚",
-      title: "Đăng ký của tôi",
-      desc: "Quản lý lớp đã tham gia",
-      link: "/member/bookings",
-    },
-    {
-      icon: "📊",
-      title: "Dashboard",
-      desc: "Thống kê học tập",
-      link: "/member/dashboard",
-    },
+    { icon: "🧘", title: "Quản lý lớp học", desc: "Đăng ký lớp Yoga nhanh chóng", link: "/member/classes" },
+    { icon: "📅", title: "Lịch học", desc: "Theo dõi lịch học cá nhân", link: "/member/schedule" },
+    { icon: "📚", title: "Đăng ký của tôi", desc: "Quản lý lớp đã tham gia", link: "/member/bookings" },
+    { icon: "📊", title: "Dashboard", desc: "Thống kê học tập", link: "/member/dashboard" },
   ];
 
   const testimonials = [
-    {
-      name: "Lan Anh",
-      text: "Hệ thống rất dễ dùng và tiện lợi!",
-    },
-    {
-      name: "Minh Tuấn",
-      text: "Tôi cải thiện sức khỏe rõ rệt sau 2 tuần.",
-    },
-    {
-      name: "Ngọc Hân",
-      text: "Lịch học rõ ràng, không bị trùng.",
-    },
+    { name: "Lan Anh", text: "Hệ thống rất dễ dùng và tiện lợi!" },
+    { name: "Minh Tuấn", text: "Tôi cải thiện sức khỏe rõ rệt sau 2 tuần." },
+    { name: "Ngọc Hân", text: "Lịch học rõ ràng, không bị trùng." },
   ];
+
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 dark:text-white overflow-hidden">

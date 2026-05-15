@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 
+// Card component di chuyển ra ngoài render để tránh warning react-hooks/static-components
+const Card = ({ title, value, color }) => (
+  <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow text-center">
+    <h3 className="text-gray-500">{title}</h3>
+    <p className={`text-2xl font-bold mt-2 ${color}`}>{value}</p>
+  </div>
+);
+
 function MemberAttendance() {
   const [data, setData] = useState({
     total: 0,
@@ -8,40 +16,25 @@ function MemberAttendance() {
     absent: 0,
     data: [],
   });
-  const [attendance, setAttendance] = useState([]);
 
-    useEffect(() => {
-    api.get("/attendance/member/")
-        .then(res => setAttendance(res.data));
-    }, []);
-    
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAttendance = async () => {
       try {
         const res = await api.get("/attendance/member/");
-        setData(res.data);
+        setData(res.data); // cập nhật toàn bộ state data
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
-    fetchData();
-  }, []);
-
-  const Card = ({ title, value, color }) => (
-    <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow text-center">
-      <h3 className="text-gray-500">{title}</h3>
-      <p className={`text-2xl font-bold mt-2 ${color}`}>{value}</p>
-    </div>
-  );
+    fetchAttendance();
+  }, []); // chạy 1 lần khi mount
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-
+      
       {/* TITLE */}
-      <h1 className="text-2xl font-bold mb-6">
-        📊 Điểm danh của tôi
-      </h1>
+      <h1 className="text-2xl font-bold mb-6">📊 Điểm danh của tôi</h1>
 
       {/* STATS */}
       <div className="grid md:grid-cols-3 gap-4 mb-8">
